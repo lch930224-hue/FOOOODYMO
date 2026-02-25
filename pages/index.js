@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-/* ====== 1️⃣ 기본 알러지 매핑 DB ====== */
 const allergyMap = {
   "계란": ["난류"],
   "슈크림": ["난류","우유","밀"],
@@ -53,11 +52,10 @@ export default function Home() {
         setOrigin(originText);
 
         determineHighlight();
-        detectAllNewMenus([breakfast, lunch, dinner]);
+        detectNewMenus([breakfast, lunch, dinner]);
       });
   }, []);
 
-  /* ====== 2️⃣ 시간대 강조 로직 ====== */
   function determineHighlight() {
     const now = new Date();
     const minutes = now.getHours() * 60 + now.getMinutes();
@@ -68,7 +66,6 @@ export default function Home() {
     else setHighlight("breakfast");
   }
 
-  /* ====== 3️⃣ 알러지 자동 탐지 ====== */
   function getAllergyInfo(text) {
     let detected = new Set();
 
@@ -78,14 +75,12 @@ export default function Home() {
       }
     });
 
-    if (detected.size > 0) {
-      return ` ⚠ ${Array.from(detected).join(", ")}`;
-    }
-    return "";
+    return detected.size > 0
+      ? ` ⚠ ${Array.from(detected).join(", ")}`
+      : "";
   }
 
-  /* ====== 4️⃣ 신규 메뉴 감지 ====== */
-  function detectAllNewMenus(mealList) {
+  function detectNewMenus(mealList) {
     let unknown = [];
 
     mealList.forEach(mealHtml => {
@@ -96,23 +91,17 @@ export default function Home() {
           if (!clean) return;
 
           let matched = false;
-
           Object.keys(allergyMap).forEach(keyword => {
-            if (clean.includes(keyword)) {
-              matched = true;
-            }
+            if (clean.includes(keyword)) matched = true;
           });
 
-          if (!matched) {
-            unknown.push(clean);
-          }
+          if (!matched) unknown.push(clean);
         });
     });
 
     setNewMenus([...new Set(unknown)]);
   }
 
-  /* ====== 5️⃣ 화면용 포맷 ====== */
   function formatMeal(html) {
     return html
       .split("<br>")
@@ -164,7 +153,7 @@ export default function Home() {
         )}
       </div>
 
-      {/* 신규 메뉴 감지 */}
+      {/* 신규 메뉴 */}
       {newMenus.length > 0 && (
         <div style={{
           marginTop: 30,
@@ -184,7 +173,6 @@ export default function Home() {
   );
 }
 
-/* ====== 카드 컴포넌트 ====== */
 function MealCard({ title, html, active }) {
   return (
     <div style={{
@@ -198,7 +186,5 @@ function MealCard({ title, html, active }) {
       <h3>{title}</h3>
       <div dangerouslySetInnerHTML={{ __html: html }} />
     </div>
-  );
-}
   );
 }
